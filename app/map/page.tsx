@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, Suspense, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -43,7 +43,7 @@ const LAYER_BUTTONS: {id:LayerMode; label:string; emoji:string}[] = [
 
 const YEAR_JUMPS = [1968,1980,1989,2000,2006,2010,2015,2020,2026];
 
-export default function MapPage() {
+function MapPageInner() {
   const [year, setYear] = useState(2010);
   const [playing, setPlaying] = useState(false);
   const [showAll, setShowAll] = useState(false);  // "All" mode — ignore year filter
@@ -900,5 +900,13 @@ export default function MapPage() {
       onOpen={(p) => setBloodTrailPersonId(p.id)}
     />
     </>
+  );
+}
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={<div style={{background:'#080810',minHeight:'100vh'}}/>}>
+      <MapPageInner />
+    </Suspense>
   );
 }
