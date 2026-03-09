@@ -59,7 +59,7 @@ export default function PersonPhoto({ personId, personName, size = 120, carousel
           objectFit: 'cover' as const, objectPosition: 'top center',
           borderRadius: 8, border: '1px solid #333', display: 'block',
         }}
-        onError={() => { setImages((p: any) => p.filter((_, i: any) => i !== idx)); setIdx(0); }}
+        onError={() => { setImages((p: any) => p.filter((_: any, i: any) => i !== idx)); setIdx(0); }}
       />
       {carousel && images.length > 1 && (
         <>
@@ -68,7 +68,7 @@ export default function PersonPhoto({ personId, personName, size = 120, carousel
           <button onClick={(e: any) => { e.stopPropagation(); setIdx((i: any) => (i + 1) % images.length); }}
             style={{ position: 'absolute' as const, right: 2, top: '50%', transform: 'translateY(-50%)', background: '#000b', border: 'none', borderRadius: 4, color: '#fff', width: 20, height: 20, cursor: 'pointer', fontSize: 14, padding: 0, lineHeight: 1 }}>›</button>
           <div style={{ position: 'absolute' as const, bottom: 5, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 3, pointerEvents: 'none' as const }}>
-            {images.map((_, i: any) => <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: i === idx ? '#fff' : '#555' }} />)}
+            {images.map((_: any, i: any) => <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: i === idx ? '#fff' : '#555' }} />)}
           </div>
         </>
       )}
