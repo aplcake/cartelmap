@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-body: 'IBM Plex Sans', sans-serif;
+
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-panel: #161616;
+  --bg-card: #1c1c1c;
+  --border: rgba(255, 255, 255, 0.08);
+  --text-primary: #e8e0d0;
+  --text-secondary: #9a9080;
+  --text-accent: #c8282d;
+  --accent-red: #c8282d;
+  --accent-amber: #d4a017;
+  --accent-blue: #1a6b8a;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #444; }
+
+/* Typography */
+.font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }
+
+/* Map state */
+.state-path {
+  cursor: pointer;
+  transition: filter 0.15s ease, stroke-width 0.15s ease;
+  stroke: rgba(0,0,0,0.4);
+  stroke-width: 0.5;
+}
+.state-path:hover {
+  filter: brightness(1.3);
+  stroke: rgba(255,255,255,0.5);
+  stroke-width: 1.5;
+}
+.state-path.selected {
+  stroke: #fff;
+  stroke-width: 2;
+  filter: brightness(1.2);
+}
+.state-path.contested {
+  stroke: rgba(255,255,255,0.3);
+  stroke-dasharray: 3 2;
+}
+
+/* Slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #c8282d;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 0 8px rgba(200, 40, 45, 0.5);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #c8282d;
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(200, 40, 45, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(200, 40, 45, 0.7); }
+}
+
+.animate-fade-in { animation: fadeIn 0.3s ease forwards; }
+.animate-slide-up { animation: slideUp 0.4s ease forwards; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+/* Panel */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+/* Event type colors */
+.event-bust { color: #1a9b5c; }
+.event-war { color: #c8282d; }
+.event-founding { color: #d4a017; }
+.event-assassination { color: #e63946; }
+.event-arrest { color: #1a6b8a; }
+.event-split { color: #7b3f8c; }
+.event-alliance { color: #2e8b57; }
+.event-massacre { color: #8b0000; }
+
+/* Node lines for family tree */
+.tree-line {
+  stroke: #333;
+  stroke-width: 1.5;
+  fill: none;
+}
