@@ -67,6 +67,7 @@ function MapPageInner() {
   const [selectedWar, setSelectedWar] = useState<CartelWar|null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval>|null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 900);
@@ -226,8 +227,15 @@ function MapPageInner() {
           </>
         )}
 
+        {isMobile && (
+          <button
+            onClick={() => setMobileControlsOpen((v: any) => !v)}
+            style={{padding:'4px 9px',borderRadius:6,border:'1px solid #2a2a3a',background:'#111',color:'#bbb',fontSize:10,cursor:'pointer',marginLeft:'auto'}}
+          >☰ Controls</button>
+        )}
+
         {/* ALL toggle — only shown on layers where it has effect */}
-        {!['hotspots','routes','territory','wars'].includes(layerMode) && (
+        {!isMobile && !['hotspots','routes','territory','wars'].includes(layerMode) && (
           <button onClick={() => setShowAll((s: any) => !s)}
             style={{padding:isMobile?'3px 8px':'4px 12px',borderRadius:6,
               border:`1px solid ${showAll?'#f59e0b':'#2a2a3a'}`,
@@ -277,6 +285,7 @@ function MapPageInner() {
             }}
             onStateClick={(code: any) => {
               setSelectedState((s: any) => s === code ? null : code);
+              if (isMobile) setMobileControlsOpen(false);
               setSelectedAttack(null); setSelectedSite(null); setSelectedBust(null);
               // In hotspot mode: scroll sidebar to matching hotspot
               if (layerMode === 'hotspots') {
@@ -888,6 +897,43 @@ function MapPageInner() {
         </div>
       </div>
     </div>
+
+
+    {isMobile && mobileControlsOpen && (
+      <div style={{position:'fixed',left:10,right:10,bottom:96,zIndex:1250,background:'#0f0f1ff2',border:'1px solid #2a2a3a',borderRadius:10,padding:'10px 10px 12px',backdropFilter:'blur(8px)',boxShadow:'0 -8px 30px rgba(0,0,0,0.4)'}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+          <div style={{fontSize:10,color:'#777',textTransform:'uppercase',letterSpacing:1}}>Map Controls</div>
+          <button onClick={() => setMobileControlsOpen(false)} style={{background:'none',border:'none',color:'#666',fontSize:14,cursor:'pointer'}}>✕</button>
+        </div>
+        <div style={{display:'flex',gap:6,overflowX:'auto',marginBottom:8}}>
+          {LAYER_BUTTONS.map(b => (
+            <button key={`sheet-${b.id}`} onClick={() => { setLayerMode(b.id); setMobileControlsOpen(false); }}
+              style={{padding:'4px 8px',borderRadius:6,border:`1px solid ${layerMode===b.id?'#C8282D':'#2a2a3a'}`,
+                background:layerMode===b.id?'#C8282D22':'transparent',color:layerMode===b.id?'#fff':'#777',fontSize:10,cursor:'pointer',whiteSpace:'nowrap'}}>
+              {b.emoji} {b.label}
+            </button>
+          ))}
+        </div>
+        {!['hotspots','routes','territory','wars'].includes(layerMode) && (
+          <button onClick={() => setShowAll((s: any) => !s)}
+            style={{padding:'4px 9px',borderRadius:6,border:`1px solid ${showAll?'#f59e0b':'#2a2a3a'}`,
+              background:showAll?'#f59e0b22':'transparent',color:showAll?'#f59e0b':'#666',fontSize:10,cursor:'pointer',fontWeight:showAll?700:400,marginBottom:8}}>
+            {showAll ? '✦ ALL events' : '✦ Show all events'}
+          </button>
+        )}
+        <div style={{fontSize:10,color:'#777',marginBottom:6}}>Cartel filter</div>
+        <div style={{display:'flex',gap:6,overflowX:'auto'}}>
+          <button onClick={() => setSelectedCartelFilter(null)} style={{padding:'3px 8px',borderRadius:6,border:`1px solid ${!selectedCartelFilter?'#C8282D':'#2a2a3a'}`,background:!selectedCartelFilter?'#C8282D22':'transparent',color:!selectedCartelFilter?'#fff':'#666',fontSize:10,cursor:'pointer',whiteSpace:'nowrap'}}>All</button>
+          {activeCartels.map((c: any) => (
+            <button key={`mcf-${c.id}`} onClick={() => setSelectedCartelFilter((f: any) => f===c.id?null:c.id)}
+              style={{padding:'3px 8px',borderRadius:6,border:`1px solid ${selectedCartelFilter===c.id?(CARTEL_COLORS[c.id]||'#555'):'#2a2a3a'}`,
+                background:selectedCartelFilter===c.id?`${CARTEL_COLORS[c.id]||'#555'}22`:'transparent',color:selectedCartelFilter===c.id?'#fff':'#666',fontSize:10,cursor:'pointer',whiteSpace:'nowrap'}}>
+              {c.shortName}
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
 
 
     {isMobile && (
