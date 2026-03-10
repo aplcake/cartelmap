@@ -41,12 +41,13 @@ export default function HomePage() {
       </div>
 
       {/* Navigation */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,padding:32,maxWidth:900,margin:'0 auto'}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:16,padding:32,maxWidth:1100,margin:'0 auto'}}>
         {[
           {href:'/map',emoji:'🗺',title:'Territory Map',desc:'Interactive 1930–2026 map. State-by-state cartel control, municipal breakdown, trafficking routes, inter-cartel attacks, mass violence sites, and drug bust markers. 4 data layers.',color:'#C8282D'},
           {href:'/family-tree',emoji:'🌳',title:'Blood Family Trees & Personnel',desc:`${PEOPLE.length} documented figures with photos, role timelines, mentor chains, blood relatives, and hotlinked notable connections (politicians, musicians, athletes). Cartel lineage spawn tree.`,color:'#E8612A'},
           {href:'/timeline',emoji:'⏱',title:'Timeline of Events',desc:`${HISTORICAL_EVENTS.length} documented events 1930–2026. Busts, arrests, massacres, assassinations, founding moments. Filter by cartel, type, significance. Seized drug volumes shown.`,color:'#7B3F8C'},
           {href:'/cartels',emoji:'💀',title:'Cartel Profiles',desc:`All ${CARTELS.length} documented organizations — from 1930s bootleggers to 2026 fentanyl empires. Stats, genealogy tree, members, wars, routes, and financial intelligence per cartel.`,color:'#1A6B8A'},
+          {href:'/hitmen',emoji:'🎯',title:'Hitmen & Operators',desc:'Cartel-adjacent enforcers, commanders, sicarios, and security chiefs linked to attacks and role timelines. Useful for understanding who executes violence vs who commands it.',color:'#9b59b6'},
         ].map(nav=>(
           <Link key={nav.href} href={nav.href} style={{textDecoration:'none'}}>
             <div style={{background:'#0f0f1f',border:`1px solid ${nav.color}44`,borderRadius:12,padding:'24px 20px',cursor:'pointer',transition:'all 0.2s'}}>
