@@ -68,6 +68,14 @@ function MapPageInner() {
   const [selectedBust, setSelectedBust] = useState<DrugBust|null>(null);
   const [selectedWar, setSelectedWar] = useState<CartelWar|null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval>|null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 900);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // ── PLAY / PAUSE (useEffect, not useMemo) ───────────────────
   useEffect(() => {
@@ -180,36 +188,37 @@ function MapPageInner() {
 
   // ── RENDER ───────────────────────────────────────────────────
   const era = getEraForYear(year);
+  const hasSelection = Boolean(selectedState || selectedAttack || selectedSite || selectedBust || selectedWar);
 
   return (
     <>
-    <div style={{background:'#0a0a16',minHeight:'100vh',color:'#fff',fontFamily:'system-ui,sans-serif',display:'flex',flexDirection:'column',height:'100vh',overflow:'hidden'}}>
+    <div style={{background:'#0a0a16',minHeight:'100vh',color:'#fff',fontFamily:'system-ui,sans-serif',display:'flex',flexDirection:'column',height:isMobile?'auto':'100vh',overflow:isMobile?'auto':'hidden'}}>
 
       {/* ── HEADER ── */}
-      <div style={{background:'#0f0f1f',borderBottom:'1px solid #333',padding:'8px 16px',display:'flex',alignItems:'center',gap:14,flexShrink:0}}>
+      <div style={{background:'#0f0f1f',borderBottom:'1px solid #333',padding:isMobile?'8px 10px':'8px 16px',display:'flex',alignItems:'center',gap:isMobile?8:14,flexShrink:0,flexWrap:'wrap'}}>
         <Link href="/" style={{color:'#666',textDecoration:'none',fontSize:12}}>← Home</Link>
-        <Link href="/family-tree" style={{color:'#666',textDecoration:'none',fontSize:12}}>Family Trees</Link>
-        <Link href="/timeline" style={{color:'#666',textDecoration:'none',fontSize:12}}>Timeline</Link>
+        {!isMobile && <Link href="/family-tree" style={{color:'#666',textDecoration:'none',fontSize:12}}>Family Trees</Link>}
+        {!isMobile && <Link href="/timeline" style={{color:'#666',textDecoration:'none',fontSize:12}}>Timeline</Link>}
         <div style={{flex:1}}/>
-        <h1 style={{margin:0,fontSize:15,fontWeight:700,color:'#C8282D'}}>CARTEL ATLAS — Territory Map 1930–2026</h1>
+        <h1 style={{margin:0,fontSize:isMobile?13:15,fontWeight:700,color:'#C8282D'}}>{isMobile ? 'CARTEL ATLAS — Mobile' : 'CARTEL ATLAS — Territory Map 1930–2026'}</h1>
         <div style={{flex:1}}/>
         <div style={{fontSize:11,color:'#666'}}>{activeCartels.length} cartels · {year}</div>
       </div>
 
       {/* ── CONTROLS ── */}
-      <div style={{background:'#0d0d1d',borderBottom:'1px solid #1f1f30',padding:'8px 16px',display:'flex',alignItems:'center',gap:14,flexShrink:0,flexWrap:'wrap'}}>
+      <div style={{background:'#0d0d1d',borderBottom:'1px solid #1f1f30',padding:isMobile?'8px 10px':'8px 16px',display:'flex',alignItems:'center',gap:isMobile?8:14,flexShrink:0,flexWrap:'wrap'}}>
 
         {/* Play / Pause */}
         <button
           onClick={() => { if (year >= 2026) { setYear(1930); setPlaying(true); } else setPlaying((p: any) => !p); }}
           style={{padding:'4px 14px',borderRadius:6,border:'1px solid #C8282D',
             background:playing?'#C8282D':'transparent',color:'#fff',fontSize:12,cursor:'pointer',minWidth:76}}
-        >{playing ? '⏸ Pause' : '▶ Play'}</button>
+        >{playing ? (isMobile ? '⏸' : '⏸ Pause') : (isMobile ? '▶' : '▶ Play')}</button>
 
         {/* Slider */}
         <input type="range" min={1930} max={2026} value={year}
           onChange={(e: any) => handleYearChange(Number(e.target.value))}
-          style={{width:200,accentColor:'#C8282D'}} />
+          style={{width:isMobile?'100%':200,accentColor:'#C8282D',flex:isMobile?'1 1 100%':undefined}} />
         <span style={{fontSize:20,fontWeight:800,color:'#C8282D',minWidth:48}}>{year}</span>
 
         {/* Era pill */}
@@ -219,15 +228,13 @@ function MapPageInner() {
         )}
 
         {/* Year jumps */}
-        <div style={{display:'flex',gap:3}}>
+        {!isMobile && <div style={{display:'flex',gap:3}}>
           {YEAR_JUMPS.map(y => (
             <button key={y} onClick={() => handleYearChange(y)}
               style={{padding:'2px 7px',borderRadius:4,border:`1px solid ${year===y?'#C8282D':'#2a2a3a'}`,
                 background:year===y?'#C8282D22':'transparent',color:year===y?'#fff':'#666',fontSize:10,cursor:'pointer'}}>{y}</button>
           ))}
-        </div>
-
-
+        </div>}
 
         {/* ALL toggle — only shown on layers where it has effect */}
         {!['hotspots','routes','territory','wars'].includes(layerMode) && (
@@ -241,7 +248,7 @@ function MapPageInner() {
         )}
 
         {/* Layer buttons */}
-        <div style={{display:'flex',gap:5,marginLeft:'auto',flexWrap:'wrap'}}>
+        <div style={{display:'flex',gap:5,marginLeft:isMobile?0:'auto',flexWrap:'wrap',width:isMobile?'100%':undefined,overflowX:isMobile?'auto':'visible'}}>
           {LAYER_BUTTONS.map(b => (
             <button key={b.id} onClick={() => setLayerMode(b.id)}
               style={{padding:'4px 10px',borderRadius:6,
@@ -255,10 +262,10 @@ function MapPageInner() {
       </div>
 
       {/* ── MAIN: MAP + SIDEBAR ── */}
-      <div style={{display:'grid',gridTemplateColumns:'1fr 272px',flex:1,overflow:'hidden',minHeight:0}}>
+      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 272px',gridTemplateRows:isMobile?(hasSelection?'52vh auto':'1fr'):'1fr',flex:1,overflow:'hidden',minHeight:0}}>
 
         {/* Map */}
-        <div style={{position:'relative',background:'#0a0a16',overflow:'hidden'}}>
+        <div style={{position:'relative',background:'#0a0a16',overflow:'hidden',minHeight:isMobile?(hasSelection?'52vh':'78vh'):'auto'}}>
           <MexicoMap
             ref={mapRef}
             bloodTrailPersonId={bloodTrailPersonId}
@@ -323,7 +330,7 @@ function MapPageInner() {
         </div>
 
         {/* ── SIDEBAR ── */}
-        <div style={{background:'#0a0a1a',borderLeft:'1px solid #1a1a2e',overflowY:'auto',display:'flex',flexDirection:'column',fontSize:12}}>
+        <div style={{background:'#0a0a1a',borderLeft:isMobile?'none':'1px solid #1a1a2e',borderTop:isMobile?'1px solid #1a1a2e':'none',overflowY:'auto',display:isMobile && !hasSelection ? 'none' : 'flex',flexDirection:'column',fontSize:12,maxHeight:isMobile?'48vh':'none'}}>
 
           {/* Detail panel */}
           {(selectedState || selectedAttack || selectedSite || selectedBust || selectedWar) ? (
