@@ -227,7 +227,7 @@ function MapPageInner() {
           </>
         )}
 
-        {isMobile && (
+        {isMobile && !hasSelection && (
           <button
             onClick={() => setMobileControlsOpen((v: any) => !v)}
             style={{padding:'4px 9px',borderRadius:6,border:'1px solid #2a2a3a',background:'#111',color:'#bbb',fontSize:10,cursor:'pointer',marginLeft:'auto'}}
@@ -329,11 +329,27 @@ function MapPageInner() {
         </div>
 
         {/* ── SIDEBAR ── */}
-        <div style={{background:'#0a0a1a',borderLeft:isMobile?'none':'1px solid #1a1a2e',borderTop:isMobile?'1px solid #1a1a2e':'none',overflowY:'auto',display:isMobile && !hasSelection ? 'none' : 'flex',flexDirection:'column',fontSize:12,maxHeight:isMobile?'48vh':'none'}}>
+        <div style={{
+          background:'#0a0a1a',
+          borderLeft:isMobile?'none':'1px solid #1a1a2e',
+          borderTop:isMobile?'1px solid #1a1a2e':'none',
+          overflowY:'auto',
+          display:isMobile && !hasSelection ? 'none' : 'flex',
+          flexDirection:'column',
+          fontSize:12,
+          maxHeight:isMobile?'100vh':'none',
+          ...(isMobile && hasSelection ? {position:'fixed', inset:'0', zIndex:1300, borderTop:'none'} : {}),
+        }}>
 
           {/* Detail panel */}
           {(selectedState || selectedAttack || selectedSite || selectedBust || selectedWar) ? (
             <div style={{flex:1,overflowY:'auto'}}>
+              {isMobile && hasSelection && (
+                <div style={{position:'sticky',top:0,zIndex:10,display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 12px',background:'#0d0d1d',borderBottom:'1px solid #1f1f30'}}>
+                  <div style={{fontSize:11,color:'#888',textTransform:'uppercase',letterSpacing:1}}>Detail View</div>
+                  <button onClick={() => { setSelectedState(null); setSelectedAttack(null); setSelectedSite(null); setSelectedBust(null); setSelectedWar(null); }} style={{background:'none',border:'1px solid #333',color:'#aaa',borderRadius:6,padding:'4px 8px',fontSize:11,cursor:'pointer'}}>Close</button>
+                </div>
+              )}
 
               {/* STATE detail */}
               {selectedState && !selectedAttack && !selectedSite && !selectedBust && (() => {
@@ -899,7 +915,7 @@ function MapPageInner() {
     </div>
 
 
-    {isMobile && mobileControlsOpen && (
+    {isMobile && mobileControlsOpen && !hasSelection && (
       <div style={{position:'fixed',left:10,right:10,bottom:96,zIndex:1250,background:'#0f0f1ff2',border:'1px solid #2a2a3a',borderRadius:10,padding:'10px 10px 12px',backdropFilter:'blur(8px)',boxShadow:'0 -8px 30px rgba(0,0,0,0.4)'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
           <div style={{fontSize:10,color:'#777',textTransform:'uppercase',letterSpacing:1}}>Map Controls</div>
@@ -936,7 +952,7 @@ function MapPageInner() {
     )}
 
 
-    {isMobile && (
+    {isMobile && !hasSelection && (
       <div style={{position:'fixed',left:0,right:0,bottom:0,zIndex:1200,background:'#0d0d1df2',backdropFilter:'blur(8px)',borderTop:'1px solid #2a2a3a',padding:'8px 12px 10px'}}>
         <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
           <button
