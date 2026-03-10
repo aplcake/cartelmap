@@ -41,8 +41,6 @@ const LAYER_BUTTONS: {id:LayerMode; label:string; emoji:string}[] = [
   {id:'routes',    label:'Routes',        emoji:'🚚'},
 ];
 
-const YEAR_JUMPS = [1968,1980,1989,2000,2006,2010,2015,2020,2026];
-
 function MapPageInner() {
   const [year, setYear] = useState(2010);
   const [playing, setPlaying] = useState(false);
@@ -195,66 +193,58 @@ function MapPageInner() {
     <div style={{background:'#0a0a16',minHeight:'100vh',color:'#fff',fontFamily:'system-ui,sans-serif',display:'flex',flexDirection:'column',height:isMobile?'auto':'100vh',overflow:isMobile?'auto':'hidden'}}>
 
       {/* ── HEADER ── */}
-      <div style={{background:'#0f0f1f',borderBottom:'1px solid #333',padding:isMobile?'8px 10px':'8px 16px',display:'flex',alignItems:'center',gap:isMobile?8:14,flexShrink:0,flexWrap:'wrap'}}>
+      <div style={{background:'#0f0f1f',borderBottom:'1px solid #333',padding:isMobile?'8px 10px':'8px 16px',display:'flex',alignItems:'center',gap:isMobile?8:14,flexShrink:0,flexWrap:'wrap',justifyContent:isMobile?'space-between':'flex-start'}}>
         <Link href="/" style={{color:'#666',textDecoration:'none',fontSize:12}}>← Home</Link>
         {!isMobile && <Link href="/family-tree" style={{color:'#666',textDecoration:'none',fontSize:12}}>Family Trees</Link>}
         {!isMobile && <Link href="/timeline" style={{color:'#666',textDecoration:'none',fontSize:12}}>Timeline</Link>}
-        <div style={{flex:1}}/>
-        <h1 style={{margin:0,fontSize:isMobile?13:15,fontWeight:700,color:'#C8282D'}}>{isMobile ? 'CARTEL ATLAS — Mobile' : 'CARTEL ATLAS — Territory Map 1930–2026'}</h1>
-        <div style={{flex:1}}/>
-        <div style={{fontSize:11,color:'#666'}}>{activeCartels.length} cartels · {year}</div>
+        {!isMobile && <div style={{flex:1}}/>}
+        <h1 style={{margin:0,fontSize:isMobile?12:15,fontWeight:700,color:'#C8282D',letterSpacing:isMobile?0.6:0}}>{isMobile ? 'CARTEL ATLAS' : 'CARTEL ATLAS — Territory Map 1930–2026'}</h1>
+        {!isMobile && <div style={{flex:1}}/>}
+        {!isMobile && <div style={{fontSize:11,color:'#666'}}>{activeCartels.length} cartels · {year}</div>}
       </div>
 
       {/* ── CONTROLS ── */}
-      <div style={{background:'#0d0d1d',borderBottom:'1px solid #1f1f30',padding:isMobile?'8px 10px':'8px 16px',display:'flex',alignItems:'center',gap:isMobile?8:14,flexShrink:0,flexWrap:'wrap'}}>
+      <div style={{background:'#0d0d1d',borderBottom:'1px solid #1f1f30',padding:isMobile?'6px 10px':'8px 16px',display:'flex',alignItems:'center',gap:isMobile?6:14,flexShrink:0,flexWrap:'wrap'}}>
+        {/* Desktop timeline controls */}
+        {!isMobile && (
+          <>
+            <button
+              onClick={() => { if (year >= 2026) { setYear(1930); setPlaying(true); } else setPlaying((p: any) => !p); }}
+              style={{padding:'4px 14px',borderRadius:6,border:'1px solid #C8282D',
+                background:playing?'#C8282D':'transparent',color:'#fff',fontSize:12,cursor:'pointer',minWidth:76}}
+            >{playing ? '⏸ Pause' : '▶ Play'}</button>
 
-        {/* Play / Pause */}
-        <button
-          onClick={() => { if (year >= 2026) { setYear(1930); setPlaying(true); } else setPlaying((p: any) => !p); }}
-          style={{padding:'4px 14px',borderRadius:6,border:'1px solid #C8282D',
-            background:playing?'#C8282D':'transparent',color:'#fff',fontSize:12,cursor:'pointer',minWidth:76}}
-        >{playing ? (isMobile ? '⏸' : '⏸ Pause') : (isMobile ? '▶' : '▶ Play')}</button>
+            <input type="range" min={1930} max={2026} value={year}
+              onChange={(e: any) => handleYearChange(Number(e.target.value))}
+              style={{width:200,accentColor:'#C8282D'}} />
+            <span style={{fontSize:20,fontWeight:800,color:'#C8282D',minWidth:48}}>{year}</span>
 
-        {/* Slider */}
-        <input type="range" min={1930} max={2026} value={year}
-          onChange={(e: any) => handleYearChange(Number(e.target.value))}
-          style={{width:isMobile?'100%':200,accentColor:'#C8282D',flex:isMobile?'1 1 100%':undefined}} />
-        <span style={{fontSize:20,fontWeight:800,color:'#C8282D',minWidth:48}}>{year}</span>
-
-        {/* Era pill */}
-        {era && (
-          <span style={{fontSize:10,color:'#aaa',background:`${era.color}22`,border:`1px solid ${era.color}44`,
-            borderRadius:4,padding:'2px 8px',whiteSpace:'nowrap'}}>{era.label}</span>
+            {era && (
+              <span style={{fontSize:10,color:'#aaa',background:`${era.color}22`,border:`1px solid ${era.color}44`,
+                borderRadius:4,padding:'2px 8px',whiteSpace:'nowrap'}}>{era.label}</span>
+            )}
+          </>
         )}
-
-        {/* Year jumps */}
-        {!isMobile && <div style={{display:'flex',gap:3}}>
-          {YEAR_JUMPS.map(y => (
-            <button key={y} onClick={() => handleYearChange(y)}
-              style={{padding:'2px 7px',borderRadius:4,border:`1px solid ${year===y?'#C8282D':'#2a2a3a'}`,
-                background:year===y?'#C8282D22':'transparent',color:year===y?'#fff':'#666',fontSize:10,cursor:'pointer'}}>{y}</button>
-          ))}
-        </div>}
 
         {/* ALL toggle — only shown on layers where it has effect */}
         {!['hotspots','routes','territory','wars'].includes(layerMode) && (
           <button onClick={() => setShowAll((s: any) => !s)}
-            style={{padding:'4px 12px',borderRadius:6,
+            style={{padding:isMobile?'3px 8px':'4px 12px',borderRadius:6,
               border:`1px solid ${showAll?'#f59e0b':'#2a2a3a'}`,
               background:showAll?'#f59e0b22':'transparent',
-              color:showAll?'#f59e0b':'#666',fontSize:11,cursor:'pointer',fontWeight:showAll?700:400}}>
+              color:showAll?'#f59e0b':'#666',fontSize:isMobile?10:11,cursor:'pointer',fontWeight:showAll?700:400,marginLeft:isMobile?'auto':0}}>
             {showAll ? '✦ ALL' : '✦ All'}
           </button>
         )}
 
         {/* Layer buttons */}
-        <div style={{display:'flex',gap:5,marginLeft:isMobile?0:'auto',flexWrap:'wrap',width:isMobile?'100%':undefined,overflowX:isMobile?'auto':'visible'}}>
+        <div style={{display:'flex',gap:5,marginLeft:isMobile?0:'auto',flexWrap:'nowrap',width:isMobile?'100%':undefined,overflowX:isMobile?'auto':'visible',paddingBottom:isMobile?2:0}}>
           {LAYER_BUTTONS.map(b => (
             <button key={b.id} onClick={() => setLayerMode(b.id)}
-              style={{padding:'4px 10px',borderRadius:6,
+              style={{padding:isMobile?'4px 8px':'4px 10px',borderRadius:6,
                 border:`1px solid ${layerMode===b.id?'#C8282D':'#2a2a3a'}`,
                 background:layerMode===b.id?'#C8282D22':'transparent',
-                color:layerMode===b.id?'#fff':'#777',fontSize:11,cursor:'pointer'}}>
+                color:layerMode===b.id?'#fff':'#777',fontSize:isMobile?10:11,cursor:'pointer',whiteSpace:'nowrap'}}>
               {b.emoji} {b.label}
             </button>
           ))}
@@ -262,7 +252,7 @@ function MapPageInner() {
       </div>
 
       {/* ── MAIN: MAP + SIDEBAR ── */}
-      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 272px',gridTemplateRows:isMobile?(hasSelection?'52vh auto':'1fr'):'1fr',flex:1,overflow:'hidden',minHeight:0}}>
+      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 272px',gridTemplateRows:isMobile?(hasSelection?'52vh auto':'1fr'):'1fr',flex:1,overflow:'hidden',minHeight:0,paddingBottom:isMobile?88:0}}>
 
         {/* Map */}
         <div style={{position:'relative',background:'#0a0a16',overflow:'hidden',minHeight:isMobile?(hasSelection?'52vh':'78vh'):'auto'}}>
@@ -898,6 +888,28 @@ function MapPageInner() {
         </div>
       </div>
     </div>
+
+
+    {isMobile && (
+      <div style={{position:'fixed',left:0,right:0,bottom:0,zIndex:1200,background:'#0d0d1df2',backdropFilter:'blur(8px)',borderTop:'1px solid #2a2a3a',padding:'8px 12px 10px'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+          <button
+            onClick={() => { if (year >= 2026) { setYear(1930); setPlaying(true); } else setPlaying((p: any) => !p); }}
+            style={{padding:'4px 10px',borderRadius:6,border:'1px solid #C8282D',background:playing?'#C8282D':'transparent',color:'#fff',fontSize:12,cursor:'pointer'}}
+          >{playing ? '⏸' : '▶'}</button>
+          <span style={{fontSize:18,fontWeight:800,color:'#C8282D',minWidth:48,textAlign:'center'}}>{year}</span>
+          {era && <span style={{fontSize:10,color:'#aaa',background:`${era.color}22`,border:`1px solid ${era.color}44`,borderRadius:4,padding:'2px 6px',whiteSpace:'nowrap'}}>{era.label}</span>}
+        </div>
+        <input
+          type='range'
+          min={1930}
+          max={2026}
+          value={year}
+          onChange={(e: any) => handleYearChange(Number(e.target.value))}
+          style={{width:'100%',accentColor:'#C8282D'}}
+        />
+      </div>
+    )}
 
     {/* ── PERSON PANEL (slide-over) ── */}
     <PersonPanel
