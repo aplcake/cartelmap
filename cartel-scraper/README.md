@@ -1,36 +1,64 @@
-# cartel-scraper
+# Cartel Scraper (Standalone, Local-Only)
 
-Standalone scraper — lives completely outside the Next.js app.
+A rebuilt standalone scraper that is **not integrated into the website build/runtime**.
 
-## Setup (one-time)
+It fetches article pages, extracts readable text, and asks an LLM to return structured intelligence JSON.
+
+## Variants
+
+- **Anthropic version**: `scrape-anthropic.mjs` (uses `ANTHROPIC_API_KEY`)
+- **OpenAI version**: `scrape-openai.mjs` (uses `OPENAI_API_KEY`)
+
+## Install
 
 ```bash
 cd cartel-scraper
 npm install
-export ANTHROPIC_API_KEY=sk-ant-...
+cp .env.example .env
+# fill in API key(s)
 ```
 
-## Run
+## Usage
+
+Single URL:
 
 ```bash
-npm run scrape          # full run, 40 articles → writes new-entries-YYYY-MM-DD.ts
-npm run scrape:quick    # only 10 articles, good for testing
-npm run scrape:dry      # prints output without writing files
+npm run anthropic -- --url "https://example.com/article"
+npm run openai -- --url "https://example.com/article"
 ```
 
-## After running
+Multiple URLs:
 
-1. Open `new-entries-YYYY-MM-DD.ts`
-2. Review each entry — check that descriptions make sense, kill counts are right
-3. ⚠️ Spot-check a few `lat`/`lng` values on Google Maps — Claude sometimes drifts slightly
-4. Paste the relevant entries into `cartel-atlas/lib/data.ts` in the right array
+```bash
+npm run anthropic -- --url "https://a.com" --url "https://b.com"
+npm run openai -- --url "https://a.com" --url "https://b.com"
+```
 
-## What it scrapes
+From file (`urls.txt`, one URL per line):
 
-RSS feeds from El Universal, Milenio, InSight Crime, Proceso, Animal Político, Sin Embargo, Zeta Tijuana, Reforma, NTR Guadalajara — plus page scrapes of Borderland Beat, Riodoce, Noroeste, and El Debate.
+```bash
+npm run anthropic -- --file urls.txt
+npm run openai -- --file urls.txt
+```
 
-Articles are filtered by ~50 cartel-related keywords before touching Claude, so only relevant pieces get processed.
+Optional flags:
 
-## Cost
+- `--model <id>` override default model
+- `--outdir <dir>` output directory (default: `./output`)
+- `--maxChars <n>` max extracted chars sent to LLM (default: `24000`)
 
-A full 40-article run uses claude-opus-4-6 and costs roughly $0.15–$0.40 depending on article length.
+## Output
+
+For each URL, it writes:
+
+- `output/<slug>.json` (structured extraction)
+
+And always writes:
+
+- `output/_run-summary.json`
+
+## Notes
+
+- This tool is intentionally separate from Next.js app code.
+- No automatic deployment is performed by this script.
+- Respect source terms of service when scraping.

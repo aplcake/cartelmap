@@ -1,83 +1,202 @@
-# 🗺️ Cartel Atlas v2
+# Cartel Atlas
 
-Interactive historical map of Mexican drug cartel territorial control, trafficking routes, violence hotspots, and organizational genealogy — from 1975 to 2024.
+An interactive, research-oriented atlas of Mexican organized crime history from **1930 to 2026**.
 
-## Quick Start
+Cartel Atlas combines territorial mapping, conflict timelines, organizational genealogy, personnel profiles, and key incident data into one Next.js application. It is designed for exploratory analysis and educational use—not for operational or law-enforcement decision making.
 
-```bash
-cd cartel-atlas
-npm install
-npm run dev
-# Open: http://localhost:3000
+---
+
+## Table of Contents
+
+- [What this project does](#what-this-project-does)
+- [Core features](#core-features)
+- [Tech stack](#tech-stack)
+- [Project structure](#project-structure)
+- [Getting started](#getting-started)
+- [Available scripts](#available-scripts)
+- [Data model and editing](#data-model-and-editing)
+- [Deployment notes](#deployment-notes)
+- [Design principles](#design-principles)
+- [Data sources](#data-sources)
+- [Disclaimer](#disclaimer)
+
+---
+
+## What this project does
+
+Cartel Atlas provides a unified view of:
+
+- **Territorial control over time** (state + municipal context)
+- **Cartel wars and violent incidents** (attacks, mass-violence sites)
+- **Drug-bust markers and trafficking routes**
+- **Cartel genealogy and fragmentation chains**
+- **People, role timelines, mentors, and blood relatives**
+- **Long-form historical event timeline with filters**
+
+The goal is to make long time-horizon cartel evolution easier to study than scattered articles and static maps.
+
+---
+
+## Core features
+
+### 1) Interactive Map (`/map`)
+
+- Year slider with play/pause through the full range
+- Layer switching for territory, wars, hotspots, routes, attacks, sites, and busts
+- Click-to-inspect detail panels for states and incidents
+- Mobile-specific UI (controls sheet + full-screen detail views)
+
+### 2) Family Trees & Personnel (`/family-tree`)
+
+- Curated bloodline groupings and mentor chains
+- Cartel lineage spawn graph
+- Searchable people directory with role timelines
+- Deep person profiles (status, relatives, mentors, notable connections)
+
+### 3) Timeline (`/timeline`)
+
+- Multi-filter historical event browser (cartel, event type, significance, search)
+- Decade grouping for fast scanning
+- Event detail drill-down with linked people/cartels
+
+### 4) Cartel Profiles (`/cartels`)
+
+- Organization cards + detailed profile pane
+- Member/leader/founder context
+- Genealogy relationships (parent/spawned organizations)
+- Financial/intelligence-style quick stats
+
+### 5) Hitmen & Operators (`/hitmen`)
+
+- Focused index of enforcement-linked figures
+- Cross-links to incidents and full personnel profiles
+
+---
+
+## Tech stack
+
+- **Framework:** Next.js 14 (App Router)
+- **Language:** TypeScript + React
+- **Styling:** Inline style system + Tailwind tooling present
+- **Mapping/Data viz:** custom map components + D3/TopoJSON utilities
+- **Performance telemetry:** Vercel Speed Insights
+
+---
+
+## Project structure
+
+```text
+app/
+  page.tsx               # landing page
+  map/page.tsx           # interactive map + controls
+  family-tree/page.tsx   # trees, lineage graph, personnel explorer
+  timeline/page.tsx      # historical timeline explorer
+  cartels/page.tsx       # cartel profiles + stats
+  hitmen/page.tsx        # operators/enforcers index
+
+components/
+  MexicoMap.tsx
+  PersonPanel.tsx
+  PersonPhoto.tsx
+  CoffeeButton.tsx
+  ...
+
+lib/
+  data.ts                # canonical dataset + interfaces
+
+public/
+  mexico-states.geojson
+  municipios.geojson
 ```
 
-**Requirements:**
+---
+
+## Getting started
+
+### Prerequisites
+
 - Node.js 18+
-- Internet connection (map loads GeoJSON from CDN on first render)
+- npm 9+
+
+### Local setup
+
+```bash
+npm install
+npm run dev
+```
+
+Open: `http://localhost:3000`
 
 ---
 
-## What's Inside
+## Available scripts
 
-### Page 1: Territorial Map (`/map`)
-
-**4 Display Modes:**
-
-| Mode | What it shows |
-|------|---------------|
-| 🗺️ **Territorial Control** | States colored by dominant cartel, with contested areas semi-transparent |
-| 🔴 **Violence Index** | Red heatmap driven by SNSP homicide data. Hotspot circles show active conflict zones |
-| ➡️ **Trafficking Routes** | Animated drug corridors (Pacific, Gulf, Golden Triangle, Zetas eastern route, CJNG fentanyl) |
-| ⭐ **Events Timeline** | Geo-pinned events — click dots on timeline to jump to year |
-
-**Controls:**
-- **Drag the slider** — or click year labels — to move through 1975–2024
-- **▶ PLAY** — auto-animates forward through time at ~3.5 years/second
-- **Colored dots** on the slider = critical/high significance events (click to jump)
-- **Click any state** → right panel shows controlling cartel, all factions, description
-
-### Page 2: Family Tree (`/family-tree`)
-
-- Full organizational genealogy
-- Solid gray lines = spawned from
-- Red dashed lines = split/schism
-- Active cartels pulse green
-- Click any node → full panel with founders, history, drugs, timeline of all events
+```bash
+npm run dev     # start development server
+npm run build   # production build
+npm run start   # run production build locally
+npm run lint    # run Next.js ESLint checks
+```
 
 ---
 
-## Data Coverage
+## Data model and editing
 
-### Cartels (12)
-Guadalajara Cartel • Sinaloa Cartel • Tijuana Cartel (AFO) • Juárez Cartel • Gulf Cartel • Los Zetas • Beltrán-Leyva Organization • CJNG • La Familia Michoacana • Knights Templar • Los Chapitos • Gulf Cartel Factions
+Most domain data is centralized in **`lib/data.ts`**.
 
-### Trafficking Routes (7)
-- Pacific Corridor (El Chapo Highway) — massive volume, Sinaloa
-- Gulf Corridor — maritime, CDG
-- Golden Triangle Production Zone — Sinaloa/DUR/CHH
-- Gulf-to-US Eastern Route — Zetas era
-- CJNG Fentanyl Pipeline — Manzanillo → Guadalajara → Tijuana
-- Air Corridor (Lord of the Skies) — Amado Carrillo's 727s
-- Tijuana–San Diego Corridor — AFO
+Typical update workflows:
 
-### Violence Hotspots (16)
-Ciudad Juárez • Culiacán • San Fernando (massacres) • Matamoros/Reynosa • Monterrey • Acapulco • Tierra Caliente • Zacatecas • Tijuana • Veracruz Port • Nogales/Sonora • Lázaro Cárdenas Port • Iguala (Ayotzinapa) • Nuevo Laredo • Morelos • Guanajuato
+1. Add/edit entities (cartels, people, events, wars, routes, attacks, sites, busts).
+2. Ensure IDs referenced across sections remain consistent.
+3. Validate chronology (start/end years) for timeline/map coherence.
+4. Run `npm run build` to catch type/data breakage.
 
-### Historical Events (40+)
-From Operation Condor (1975) through the Sinaloa Civil War (2024)
+If you plan large research updates, prefer smaller commits grouped by entity type (e.g., “events batch”, “personnel corrections”).
 
 ---
 
-## All Data in `lib/data.ts`
+## Deployment notes
 
-To add events, routes, hotspots or correct territorial data — edit `lib/data.ts` directly. Well-commented TypeScript interfaces at the top.
-
----
-
-## Sources
-
-DEA Intelligence Reports · InSight Crime · Wikipedia · UNODC · SNSP (Mexican homicide data) · Stratfor · Justice in Mexico (USSD)
+- Designed to deploy cleanly on **Vercel**.
+- Speed Insights is integrated in the root layout.
+- If build output differs from local, verify Node/npm versions and lockfile consistency.
 
 ---
 
-*Educational/research use only. All data from publicly available sources.*
+## Design principles
+
+- **Research-first UX:** density without sacrificing navigability
+- **Temporal clarity:** everything anchored in year-based progression
+- **Cross-linking:** people ↔ cartels ↔ incidents ↔ territories
+- **Mobile fallback:** key workflows remain usable on narrow screens
+
+---
+
+## Data sources
+
+This project compiles public-source material, including but not limited to:
+
+- Government/public safety reporting
+- Investigative journalism
+- Academic/security analysis
+- Public reference datasets and encyclopedic sources
+
+> Source quality varies by period and region; treat uncertain records as historically contested rather than definitive.
+
+---
+
+## Disclaimer
+
+Cartel Atlas is for **educational and research purposes only**.
+
+- It does **not** provide operational guidance.
+- It may contain incomplete, conflicting, or evolving historical records.
+- No claim is made that all entities/events are exhaustive or final.
+
+If you spot errors, open an issue or submit a PR with source-backed corrections.
+
+---
+
+## Support
+
+If Cartel Atlas is useful for your research, **a coffee is appreciated**: [ko-fi.com/aplcake](https://ko-fi.com/aplcake).

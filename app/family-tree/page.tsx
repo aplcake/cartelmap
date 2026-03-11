@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { PEOPLE, CARTELS, Person, NOTABLE_CONNECTIONS, NotableConnection } from '@/lib/data';
 import PersonPhoto from '@/components/PersonPhoto';
 import CartelLogo from '@/components/CartelLogo';
+import CoffeeButton from '@/components/CoffeeButton';
 
 const CARTEL_COLORS: Record<string, string> = {
   proto_sinaloa:'#5a1a1a',gulf_proto:'#1a2a5a',guadalajara:'#8B1A1A',
@@ -482,7 +483,7 @@ function PersonDetail({ person, onSelect }: { person: Person; onSelect: (p:Perso
 }
 
 // ── Cartel Lineage Spawn Tree ─────────────────────────────
-function CartelLineageView({ selectedPerson, onSelectPerson }: { selectedPerson: Person|null; onSelectPerson: (p:Person)=>void }) {
+function CartelLineageView({ selectedPerson, onSelectPerson, isMobile }: { selectedPerson: Person|null; onSelectPerson: (p:Person)=>void; isMobile: boolean }) {
   const [hoveredCartel, setHoveredCartel] = useState<string|null>(null);
   const [selectedCartel, setSelectedCartel] = useState<string|null>(null);
 
@@ -549,9 +550,9 @@ function CartelLineageView({ selectedPerson, onSelectPerson }: { selectedPerson:
   ];
 
   return (
-    <div style={{display:'grid', gridTemplateColumns:'1fr 340px', height:'calc(100vh - 49px)'}}>
+    <div style={{display:'grid', gridTemplateColumns:isMobile?'1fr':'1fr 340px', height:isMobile?'auto':'calc(100vh - 49px)'}}>
       {/* SVG canvas */}
-      <div style={{overflowY:'auto', overflowX:'auto', padding:24, background:'#0a0a12'}}>
+      <div style={{overflowY:'auto', overflowX:'auto', padding:isMobile?12:24, background:'#0a0a12'}}>
         <div style={{marginBottom:16}}>
           <div style={{fontSize:13, fontWeight:700, color:'#fff', marginBottom:3}}>Cartel Spawn Tree — 1930 to 2026</div>
           <div style={{fontSize:11, color:'#666'}}>Arrows show which cartels spawned which. Click any node for details.</div>
@@ -787,6 +788,14 @@ function FamilyTreePageInner() {
   const [selectedPerson, setSelectedPerson] = useState<Person|null>(null);
   const [viewMode, setViewMode] = useState<'trees'|'all'|'lineage'>('trees');
   const [search, setSearch] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 900);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const searchParams = useSearchParams();
   const group = FAMILY_GROUPS.find(g=>g.id===activeGroup)!;
@@ -810,16 +819,16 @@ function FamilyTreePageInner() {
   return (
     <div style={{background:'#0a0a16',minHeight:'100vh',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
       {/* Header */}
-      <div style={{background:'#0f0f1f',borderBottom:'1px solid #333',padding:'10px 20px',display:'flex',alignItems:'center',gap:14}}>
+      <div style={{background:'#0f0f1f',borderBottom:'1px solid #333',padding:isMobile?'10px 12px':'10px 20px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
         <Link href="/" style={{color:'#888',textDecoration:'none',fontSize:13}}>← Home</Link>
         <Link href="/map" style={{color:'#888',textDecoration:'none',fontSize:13}}>Map</Link>
         <Link href="/timeline" style={{color:'#888',textDecoration:'none',fontSize:13}}>Timeline</Link>
         <div style={{flex:1}}/>
-        <h1 style={{margin:0,fontSize:15,fontWeight:700,color:'#C8282D'}}>CARTEL ATLAS — Family Trees & Personnel</h1>
+        <h1 style={{margin:0,fontSize:isMobile?13:15,fontWeight:700,color:'#C8282D'}}>CARTEL ATLAS — Family Trees & Personnel</h1>
         <div style={{flex:1}}/>
-        <div style={{display:'flex',gap:6}}>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',width:isMobile?'100%':'auto'}}>
           {(['trees','lineage','all'] as const).map(m=>(
-            <button key={m} onClick={()=>setViewMode(m)} style={{padding:'4px 12px',borderRadius:6,border:`1px solid ${viewMode===m?'#C8282D':'#333'}`,background:viewMode===m?'#C8282D22':'transparent',color:viewMode===m?'#fff':'#888',fontSize:12,cursor:'pointer'}}>
+            <button key={m} onClick={()=>setViewMode(m)} style={{padding:isMobile?'5px 9px':'4px 12px',borderRadius:6,border:`1px solid ${viewMode===m?'#C8282D':'#333'}`,background:viewMode===m?'#C8282D22':'transparent',color:viewMode===m?'#fff':'#888',fontSize:isMobile?11:12,cursor:'pointer',flex:isMobile?1:'unset'}}>
               {m==='trees'?'🌳 Family Trees':m==='lineage'?'🔗 Cartel Lineage':'👥 All People'}
             </button>
           ))}
@@ -828,11 +837,11 @@ function FamilyTreePageInner() {
 
       {viewMode==='lineage' ? (
         /* CARTEL LINEAGE SPAWN TREE */
-        <CartelLineageView selectedPerson={selectedPerson} onSelectPerson={setSelectedPerson} />
+        <CartelLineageView selectedPerson={selectedPerson} onSelectPerson={setSelectedPerson} isMobile={isMobile} />
       ) : viewMode==='trees' ? (
-        <div style={{display:'grid',gridTemplateColumns:'230px 1fr 320px',height:'calc(100vh - 49px)'}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'230px 1fr 320px',height:isMobile?'auto':'calc(100vh - 49px)'}}>
           {/* Sidebar */}
-          <div style={{background:'#0f0f1f',borderRight:'1px solid #222',overflowY:'auto',padding:10}}>
+          <div style={{background:'#0f0f1f',borderRight:isMobile?'none':'1px solid #222',borderBottom:isMobile?'1px solid #222':'none',overflowY:'auto',padding:10,maxHeight:isMobile?220:'none'}}>
             <div style={{fontSize:10,color:'#555',textTransform:'uppercase',marginBottom:10,padding:'0 4px'}}>Blood Family Trees</div>
             {FAMILY_GROUPS.map(g=>(
               <button key={g.id} onClick={()=>setActiveGroup(g.id)} style={{width:'100%',textAlign:'left',padding:'9px 11px',marginBottom:5,background:activeGroup===g.id?`${g.color}22`:'#161626',border:`1px solid ${activeGroup===g.id?g.color:'#2a2a3e'}`,borderRadius:7,cursor:'pointer'}}>
@@ -859,7 +868,7 @@ function FamilyTreePageInner() {
           </div>
 
           {/* Tree view */}
-          <div style={{overflowY:'auto',padding:24}}>
+          <div style={{overflowY:'auto',padding:isMobile?12:24}}>
             <div style={{borderLeft:`4px solid ${group.color}`,paddingLeft:16,marginBottom:24}}>
               <h2 style={{color:'#fff',margin:'0 0 4px',fontSize:20}}>{group.title}</h2>
               <p style={{color:'#999',margin:0,fontSize:13}}>{group.description}</p>
@@ -898,7 +907,7 @@ function FamilyTreePageInner() {
           </div>
 
           {/* Detail panel */}
-          <div style={{borderLeft:'1px solid #222',overflowY:'auto',padding:14,background:'#0a0a16'}}>
+          <div style={{borderLeft:isMobile?'none':'1px solid #222',overflowY:'auto',padding:14,background:'#0a0a16',display:isMobile?'none':'block'}}>
             {selectedPerson ? <PersonDetail person={selectedPerson} onSelect={setSelectedPerson}/> : (
               <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:280,color:'#555',textAlign:'center',gap:10}}>
                 <div style={{fontSize:36}}>👆</div>
@@ -910,8 +919,8 @@ function FamilyTreePageInner() {
         </div>
       ) : (
         /* ALL PEOPLE VIEW */
-        <div style={{display:'grid',gridTemplateColumns:'1fr 360px',height:'calc(100vh - 49px)'}}>
-          <div style={{overflowY:'auto',padding:20}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 360px',height:isMobile?'auto':'calc(100vh - 49px)'}}>
+          <div style={{overflowY:'auto',padding:isMobile?12:20}}>
             <div style={{display:'flex',gap:12,marginBottom:16,alignItems:'center'}}>
               <input placeholder="Search name or alias…" value={search} onChange={(e: any) =>setSearch(e.target.value)}
                 style={{flex:1,background:'#1a1a2e',border:'1px solid #333',borderRadius:7,padding:'7px 12px',color:'#fff',fontSize:13}}/>
@@ -929,13 +938,29 @@ function FamilyTreePageInner() {
               {filteredPeople.map(p=>{ const props = {person:p, onSelect:setSelectedPerson as (p:Person)=>void, selected:selectedPerson?.id===p.id}; return <PersonCard key={p.id} {...props}/>; })}
             </div>
           </div>
-          <div style={{borderLeft:'1px solid #222',overflowY:'auto',padding:14,background:'#0a0a16'}}>
+          <div style={{borderLeft:isMobile?'none':'1px solid #222',overflowY:'auto',padding:14,background:'#0a0a16',display:isMobile?'none':'block'}}>
             {selectedPerson ? <PersonDetail person={selectedPerson} onSelect={setSelectedPerson}/> : (
               <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:280,color:'#555',textAlign:'center',gap:10}}>
                 <div style={{fontSize:36}}>👆</div>
                 <div style={{fontSize:13}}>Click any person for full profile</div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+
+
+      {!selectedPerson && <CoffeeButton bottom={isMobile ? 12 : 14} size={isMobile ? 34 : 38} />}
+
+      {isMobile && selectedPerson && (
+        <div style={{position:'fixed',inset:0,zIndex:1400,background:'#0a0a16'}}>
+          <div style={{position:'sticky',top:0,zIndex:5,display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 12px',background:'#0f0f1f',borderBottom:'1px solid #222'}}>
+            <div style={{fontSize:11,color:'#888',textTransform:'uppercase',letterSpacing:1}}>Person Detail</div>
+            <button onClick={()=>setSelectedPerson(null)} style={{background:'none',border:'1px solid #333',color:'#aaa',borderRadius:6,padding:'4px 8px',fontSize:11,cursor:'pointer'}}>Close</button>
+          </div>
+          <div style={{padding:12,height:'calc(100vh - 46px)',overflowY:'auto'}}>
+            <PersonDetail person={selectedPerson} onSelect={setSelectedPerson}/>
           </div>
         </div>
       )}

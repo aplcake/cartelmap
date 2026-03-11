@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import {
   CARTELS, PEOPLE, CARTEL_WARS, CARTEL_ATTACKS, DRUG_BUSTS,
@@ -7,6 +7,7 @@ import {
   Person, Cartel
 } from '@/lib/data';
 import PersonPhoto from '@/components/PersonPhoto';
+import CoffeeButton from '@/components/CoffeeButton';
 
 const CARTEL_COLORS: Record<string, string> = {
   proto_sinaloa:'#5a1a1a', gulf_proto:'#1a2a5a', guadalajara:'#8B1A1A',
@@ -45,6 +46,20 @@ function fmtB(n?: number) {
   if (n >= 1e9) return `$${(n/1e9).toFixed(1)}B`;
   if (n >= 1e6) return `$${(n/1e6).toFixed(0)}M`;
   return `$${n.toLocaleString()}`;
+}
+
+
+function getCartelPeople(cartel: Cartel) {
+  const founderIds = new Set(cartel.founders || []);
+  const leaderIds = new Set(cartel.currentLeaders || []);
+
+  return PEOPLE.filter((p) => {
+    const explicit = (p.cartelIds || []).includes(cartel.id);
+    const roleLinked = (p.roles || []).some((r) => r.cartelId === cartel.id);
+    const founderLinked = founderIds.has(p.id);
+    const leaderLinked = leaderIds.has(p.id);
+    return explicit || roleLinked || founderLinked || leaderLinked;
+  });
 }
 
 // Cartel logo placeholder — distinctive monogram based on ID
@@ -121,7 +136,7 @@ function CartelDetail({ cartel, onClose, onSelectCartel }: {
   const span = (cartel.dissolvedYear || 2026) - cartel.foundedYear;
 
   // Related data
-  const members = PEOPLE.filter(p => ((p.cartelIds||[])||[]).includes(cartel.id));
+  const members = getCartelPeople(cartel);
   const founders = (cartel.founders || []).map(id => PEOPLE.find(p => p.id === id)).filter(Boolean) as Person[];
   const leaders  = (cartel.currentLeaders || []).map(id => PEOPLE.find(p => p.id === id)).filter(Boolean) as Person[];
   const wars = CARTEL_WARS.filter(w => w.cartel1 === cartel.id || w.cartel2 === cartel.id);
@@ -211,7 +226,7 @@ function CartelDetail({ cartel, onClose, onSelectCartel }: {
             gap: 8, marginBottom: 20,
           }}>
             {[
-              { label: 'Members', value: members.length.toString(), icon: '👤' },
+              { label: 'People', value: members.length.toString(), icon: '👥' },
               { label: 'Wars', value: wars.length.toString(), icon: '🔥' },
               { label: 'Attacks', value: attacks.length.toString(), icon: '⚔️' },
               { label: 'Routes', value: routes.length.toString(), icon: '🚚' },
@@ -408,15 +423,18 @@ function CartelDetail({ cartel, onClose, onSelectCartel }: {
           {members.length > 0 && (
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 10, color: '#444', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-                All Documented Members ({members.length})
+                People linked to {cartel.shortName} ({members.length})
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                 {members.map(p => {
                   const statusColor = { active:'#22c55e', arrested:'#ef4444', killed:'#dc2626', deceased:'#6b7280', fugitive:'#f59e0b' }[p.status] || '#666';
+                  const latestRole = [...(p.roles || [])]
+                    .filter(r => r.cartelId === cartel.id)
+                    .sort((a,b) => (b.endYear || 2026) - (a.endYear || 2026) || b.startYear - a.startYear)[0]?.role;
                   return (
                     <Link key={p.id} href={`/family-tree?person=${p.id}`} style={{ textDecoration: 'none' }}>
                       <div style={{
-                        display: 'flex', alignItems: 'center', gap: 5,
+                        display: 'flex', alignItems: 'center', gap: 6,
                         background: '#111', borderRadius: 5, padding: '4px 8px',
                         border: '1px solid #1a1a2e', cursor: 'pointer', fontSize: 11,
                         transition: 'border-color 0.15s',
@@ -425,6 +443,7 @@ function CartelDetail({ cartel, onClose, onSelectCartel }: {
                       onMouseLeave={(e: any) => (e.currentTarget.style.borderColor = '#1a1a2e')}>
                         <div style={{ width: 6, height: 6, borderRadius: '50%', background: statusColor, flexShrink: 0 }} />
                         <span style={{ color: '#ccc' }}>{p.alias[0] || p.name}</span>
+                        {latestRole && <span style={{ color:'#666', fontSize:10 }}>• {latestRole}</span>}
                       </div>
                     </Link>
                   );
@@ -561,7 +580,7 @@ function CartelDetail({ cartel, onClose, onSelectCartel }: {
 function CartelCard({ cartel, onClick }: { cartel: Cartel; onClick: () => void; key?: React.Key }) {
   const color = CARTEL_COLORS[cartel.id] || '#555';
   const status = STATUS_STYLE[cartel.status];
-  const memberCount = PEOPLE.filter(p => ((p.cartelIds||[])||[]).includes(cartel.id)).length;
+  const memberCount = getCartelPeople(cartel).length;
   const warCount = CARTEL_WARS.filter(w => w.cartel1 === cartel.id || w.cartel2 === cartel.id).length;
   const era = getEra(cartel.foundedYear);
 
@@ -642,7 +661,7 @@ function CartelCard({ cartel, onClick }: { cartel: Cartel; onClick: () => void; 
         paddingTop: 8, borderTop: `1px solid ${color}22`,
       }}>
         <div style={{ display: 'flex', gap: 10 }}>
-          <span style={{ fontSize: 10, color: '#555' }}>👤 {memberCount}</span>
+          <span style={{ fontSize: 10, color: '#555' }}>👥 {memberCount} people</span>
           {warCount > 0 && <span style={{ fontSize: 10, color: '#555' }}>🔥 {warCount} wars</span>}
           {(cartel as any).annualRevenueUSD && (
             <span style={{ fontSize: 10, color: '#f59e0b' }}>💰 {fmtB((cartel as any).annualRevenueUSD)}/yr</span>
@@ -665,6 +684,14 @@ export default function CartelsPage() {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [eraFilter, setEraFilter] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 900);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const selectedCartel = selected ? CARTELS.find(c => c.id === selected) : null;
 
@@ -858,6 +885,8 @@ export default function CartelsPage() {
           onSelectCartel={(id) => setSelected(id)}
         />
       )}
+
+      {!selectedCartel && <CoffeeButton bottom={isMobile ? 12 : 14} size={isMobile ? 34 : 38} />}
     </div>
   );
 }

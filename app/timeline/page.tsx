@@ -1,7 +1,8 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { HISTORICAL_EVENTS, CARTELS, PEOPLE, HistoricalEvent, ERA_LABELS, getEraForYear } from '@/lib/data';
+import CoffeeButton from '@/components/CoffeeButton';
 
 const CARTEL_COLORS: Record<string, string> = {
   proto_sinaloa:'#5a1a1a', gulf_proto:'#1a2a5a', guadalajara:'#8B1A1A',
@@ -28,6 +29,14 @@ export default function TimelinePage() {
   const [filterSig, setFilterSig] = useState<string>('all');
   const [selectedEvent, setSelectedEvent] = useState<HistoricalEvent|null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 900);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const filtered = useMemo(() => {
     return HISTORICAL_EVENTS.filter(ev => {
@@ -56,35 +65,35 @@ export default function TimelinePage() {
   return (
     <div style={{ background:'#0a0a16', minHeight:'100vh', color:'#fff', fontFamily:'system-ui, sans-serif' }}>
       {/* Header */}
-      <div style={{ background:'#0f0f1f', borderBottom:'1px solid #333', padding:'12px 20px', display:'flex', alignItems:'center', gap:16, flexWrap:'wrap' }}>
+      <div style={{ background:'#0f0f1f', borderBottom:'1px solid #333', padding:isMobile?'10px 12px':'12px 20px', display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
         <Link href="/" style={{ color:'#888', textDecoration:'none', fontSize:13 }}>← Home</Link>
         <Link href="/map" style={{ color:'#888', textDecoration:'none', fontSize:13 }}>🗺 Map</Link>
         <Link href="/family-tree" style={{ color:'#888', textDecoration:'none', fontSize:13 }}>🌳 Blood Ties</Link>
         <div style={{ flex:1 }}/>
-        <h1 style={{ margin:0, fontSize:16, fontWeight:700, color:'#C8282D' }}>CARTEL ATLAS — Timeline 1930–2026</h1>
+        <h1 style={{ margin:0, fontSize:isMobile?13:16, fontWeight:700, color:'#C8282D' }}>CARTEL ATLAS — Timeline 1930–2026</h1>
         <div style={{ flex:1 }}/>
         <div style={{ color:'#666', fontSize:12 }}>{filtered.length} events</div>
       </div>
 
       {/* Filters */}
-      <div style={{ background:'#0f0f1f', borderBottom:'1px solid #222', padding:'10px 20px', display:'flex', gap:10, flexWrap:'wrap', alignItems:'center' }}>
+      <div style={{ background:'#0f0f1f', borderBottom:'1px solid #222', padding:isMobile?'10px 12px':'10px 20px', display:'flex', gap:8, flexWrap:'wrap', alignItems:'center' }}>
         <input placeholder="Search events…" value={searchQuery} onChange={(e: any) =>setSearchQuery(e.target.value)}
-          style={{ background:'#1a1a2e', border:'1px solid #333', borderRadius:6, padding:'5px 10px', color:'#fff', fontSize:12, width:200 }}/>
+          style={{ background:'#1a1a2e', border:'1px solid #333', borderRadius:6, padding:'7px 10px', color:'#fff', fontSize:12, width:isMobile?'100%':200 }}/>
         
         <select value={filterCartel} onChange={(e: any) =>setFilterCartel(e.target.value)}
-          style={{ background:'#1a1a2e', border:'1px solid #333', borderRadius:6, padding:'5px 8px', color:'#fff', fontSize:12 }}>
+          style={{ background:'#1a1a2e', border:'1px solid #333', borderRadius:6, padding:'7px 8px', color:'#fff', fontSize:12, minWidth:isMobile?'calc(50% - 4px)':'auto', flex:isMobile?1:'unset' }}>
           <option value="all">All Cartels</option>
           {CARTELS.map(c=><option key={c.id} value={c.id}>{c.shortName}</option>)}
         </select>
 
         <select value={filterType} onChange={(e: any) =>setFilterType(e.target.value)}
-          style={{ background:'#1a1a2e', border:'1px solid #333', borderRadius:6, padding:'5px 8px', color:'#fff', fontSize:12 }}>
+          style={{ background:'#1a1a2e', border:'1px solid #333', borderRadius:6, padding:'7px 8px', color:'#fff', fontSize:12, minWidth:isMobile?'calc(50% - 4px)':'auto', flex:isMobile?1:'unset' }}>
           <option value="all">All Types</option>
           {Object.keys(TYPE_ICONS).map(t=><option key={t} value={t}>{TYPE_ICONS[t]} {t}</option>)}
         </select>
 
         <select value={filterSig} onChange={(e: any) =>setFilterSig(e.target.value)}
-          style={{ background:'#1a1a2e', border:'1px solid #333', borderRadius:6, padding:'5px 8px', color:'#fff', fontSize:12 }}>
+          style={{ background:'#1a1a2e', border:'1px solid #333', borderRadius:6, padding:'7px 8px', color:'#fff', fontSize:12, minWidth:isMobile?'calc(50% - 4px)':'auto', flex:isMobile?1:'unset' }}>
           <option value="all">All Significance</option>
           <option value="critical">🔴 Critical</option>
           <option value="high">🟠 High</option>
@@ -93,12 +102,12 @@ export default function TimelinePage() {
         </select>
 
         <button onClick={()=>{setFilterCartel('all');setFilterType('all');setFilterSig('all');setSearchQuery('');}}
-          style={{ padding:'5px 10px', borderRadius:6, border:'1px solid #444', background:'transparent', color:'#888', fontSize:12, cursor:'pointer' }}>
+          style={{ padding:'7px 10px', borderRadius:6, border:'1px solid #444', background:'transparent', color:'#888', fontSize:12, cursor:'pointer' }}>
           Clear
         </button>
 
         {/* Type legend */}
-        <div style={{ marginLeft:'auto', display:'flex', gap:8, flexWrap:'wrap' }}>
+        <div style={{ marginLeft:isMobile?0:'auto', width:isMobile?'100%':'auto', display:'flex', gap:8, flexWrap:'wrap' }}>
           {Object.entries(TYPE_ICONS).slice(0,6).map(([t,icon])=>(
             <span key={t} style={{ fontSize:10, color:'#888', display:'flex', alignItems:'center', gap:3 }}>
               {icon} {t}
@@ -107,9 +116,9 @@ export default function TimelinePage() {
         </div>
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 360px', height:'calc(100vh - 110px)' }}>
+      <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr':'1fr 360px', height:isMobile?'auto':'calc(100vh - 110px)' }}>
         {/* Timeline */}
-        <div style={{ overflowY:'auto', padding:'20px 24px' }}>
+        <div style={{ overflowY:'auto', padding:isMobile?'12px':'20px 24px' }}>
           {decades.length === 0 && (
             <div style={{ textAlign:'center', color:'#555', padding:60, fontSize:16 }}>No events match filters</div>
           )}
@@ -201,7 +210,7 @@ export default function TimelinePage() {
         </div>
 
         {/* Sidebar — Era overview + selected event */}
-        <div style={{ borderLeft:'1px solid #222', overflowY:'auto', background:'#0a0a16' }}>
+        <div style={{ borderLeft:isMobile?'none':'1px solid #222', overflowY:'auto', background:'#0a0a16', display:isMobile?'none':'block' }}>
           {selectedEvent ? (
             <div style={{ padding:20 }}>
               <button onClick={()=>setSelectedEvent(null)} style={{ background:'transparent', border:'1px solid #333', color:'#888', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontSize:12, marginBottom:16 }}>← Back</button>
@@ -302,6 +311,32 @@ export default function TimelinePage() {
           )}
         </div>
       </div>
+
+
+
+
+      <CoffeeButton
+        bottom={isMobile ? 12 : 14}
+        right={isMobile ? 12 : 372}
+        size={isMobile ? 34 : 44}
+      />
+
+      {isMobile && selectedEvent && (
+        <div style={{position:'fixed',inset:0,zIndex:1400,background:'#0a0a16'}}>
+          <div style={{position:'sticky',top:0,display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 12px',background:'#0f0f1f',borderBottom:'1px solid #222'}}>
+            <div style={{fontSize:11,color:'#888',textTransform:'uppercase',letterSpacing:1}}>Event Detail</div>
+            <button onClick={()=>setSelectedEvent(null)} style={{background:'none',border:'1px solid #333',color:'#aaa',borderRadius:6,padding:'4px 8px',fontSize:11,cursor:'pointer'}}>Close</button>
+          </div>
+          <div style={{padding:12,height:'calc(100vh - 46px)',overflowY:'auto'}}>
+            <div style={{color:'#ddd',fontSize:11,marginBottom:8}}>
+              {selectedEvent.year}{selectedEvent.month&&`.${String(selectedEvent.month).padStart(2,'0')}`}
+            </div>
+            <h2 style={{margin:'0 0 8px',fontSize:20,color:'#fff'}}>{selectedEvent.title}</h2>
+            <div style={{color:'#bbb',fontSize:14,lineHeight:1.7,marginBottom:10}}>{selectedEvent.description}</div>
+            <button onClick={()=>setSelectedEvent(null)} style={{padding:'7px 10px',borderRadius:6,border:'1px solid #444',background:'transparent',color:'#888',fontSize:12,cursor:'pointer'}}>Done</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

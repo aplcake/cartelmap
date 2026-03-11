@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CARTELS, PEOPLE, HISTORICAL_EVENTS } from '@/lib/data';
+import CoffeeButton from '@/components/CoffeeButton';
 
 export default function HomePage() {
   const totalDeaths = 120000; // estimated from all wars
@@ -10,12 +11,12 @@ export default function HomePage() {
   return (
     <div style={{background:'#0a0a16',minHeight:'100vh',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
       {/* Hero */}
-      <div style={{background:'linear-gradient(180deg, #1a0808 0%, #0a0a16 100%)',borderBottom:'1px solid #2a1515',padding:'60px 40px 50px',textAlign:'center'}}>
+      <div style={{background:'linear-gradient(180deg, #1a0808 0%, #0a0a16 100%)',borderBottom:'1px solid #2a1515',padding:'clamp(26px,6vw,60px) clamp(14px,5vw,40px) clamp(24px,5vw,50px)',textAlign:'center'}}>
         <div style={{fontSize:13,color:'#C8282D',letterSpacing:4,textTransform:'uppercase',marginBottom:16}}>1930 — 2026</div>
-        <h1 style={{margin:'0 0 12px',fontSize:52,fontWeight:900,color:'#fff',letterSpacing:-1}}>
+        <h1 style={{margin:'0 0 12px',fontSize:'clamp(34px,11vw,52px)',fontWeight:900,color:'#fff',letterSpacing:-1}}>
           CARTEL<span style={{color:'#C8282D'}}> ATLAS</span>
         </h1>
-        <p style={{color:'#888',fontSize:17,margin:'0 0 8px',maxWidth:600,marginLeft:'auto',marginRight:'auto',lineHeight:1.6}}>
+        <p style={{color:'#888',fontSize:'clamp(14px,4vw,17px)',margin:'0 0 8px',maxWidth:600,marginLeft:'auto',marginRight:'auto',lineHeight:1.6}}>
           The complete documented history of Mexican organized crime — blood family trees, territorial control, trafficking routes, and the full timeline from Prohibition bootleggers to El Mencho's February 2026 death.
         </p>
         <div style={{marginTop:8,fontSize:13,color:'#C8282D',fontWeight:700}}>
@@ -24,7 +25,7 @@ export default function HomePage() {
       </div>
 
       {/* Stats */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:1,background:'#1a0a0a',borderBottom:'1px solid #2a1515'}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:1,background:'#1a0a0a',borderBottom:'1px solid #2a1515'}}>
         {[
           {label:'Years of History',value:'96',sub:'1930–2026'},
           {label:'Cartels Documented',value:CARTELS.length.toString(),sub:`${activeCartels} still active`},
@@ -32,8 +33,8 @@ export default function HomePage() {
           {label:'Critical Events',value:criticalEvents.toString(),sub:'turning points'},
           {label:'Est. Drug War Deaths',value:'120K+',sub:'2006–2026'},
         ].map(s=>(
-          <div key={s.label} style={{background:'#0f0f1f',padding:'20px 24px',textAlign:'center'}}>
-            <div style={{fontSize:32,fontWeight:900,color:'#C8282D'}}>{s.value}</div>
+          <div key={s.label} style={{background:'#0f0f1f',padding:'clamp(12px,3.5vw,20px) clamp(12px,4vw,24px)',textAlign:'center'}}>
+            <div style={{fontSize:'clamp(24px,7vw,32px)',fontWeight:900,color:'#C8282D'}}>{s.value}</div>
             <div style={{fontSize:12,color:'#fff',fontWeight:600,marginBottom:2}}>{s.label}</div>
             <div style={{fontSize:11,color:'#666'}}>{s.sub}</div>
           </div>
@@ -41,12 +42,13 @@ export default function HomePage() {
       </div>
 
       {/* Navigation */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,padding:32,maxWidth:900,margin:'0 auto'}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:16,padding:'clamp(14px,4vw,32px)',maxWidth:1100,margin:'0 auto'}}>
         {[
           {href:'/map',emoji:'🗺',title:'Territory Map',desc:'Interactive 1930–2026 map. State-by-state cartel control, municipal breakdown, trafficking routes, inter-cartel attacks, mass violence sites, and drug bust markers. 4 data layers.',color:'#C8282D'},
           {href:'/family-tree',emoji:'🌳',title:'Blood Family Trees & Personnel',desc:`${PEOPLE.length} documented figures with photos, role timelines, mentor chains, blood relatives, and hotlinked notable connections (politicians, musicians, athletes). Cartel lineage spawn tree.`,color:'#E8612A'},
           {href:'/timeline',emoji:'⏱',title:'Timeline of Events',desc:`${HISTORICAL_EVENTS.length} documented events 1930–2026. Busts, arrests, massacres, assassinations, founding moments. Filter by cartel, type, significance. Seized drug volumes shown.`,color:'#7B3F8C'},
           {href:'/cartels',emoji:'💀',title:'Cartel Profiles',desc:`All ${CARTELS.length} documented organizations — from 1930s bootleggers to 2026 fentanyl empires. Stats, genealogy tree, members, wars, routes, and financial intelligence per cartel.`,color:'#1A6B8A'},
+          {href:'/hitmen',emoji:'🎯',title:'Hitmen & Operators',desc:'Cartel-adjacent enforcers, commanders, sicarios, and security chiefs linked to attacks and role timelines. Useful for understanding who executes violence vs who commands it.',color:'#9b59b6'},
         ].map(nav=>(
           <Link key={nav.href} href={nav.href} style={{textDecoration:'none'}}>
             <div style={{background:'#0f0f1f',border:`1px solid ${nav.color}44`,borderRadius:12,padding:'24px 20px',cursor:'pointer',transition:'all 0.2s'}}>
@@ -89,6 +91,8 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      <CoffeeButton />
     </div>
   );
 }
